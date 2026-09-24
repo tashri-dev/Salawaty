@@ -1,0 +1,74 @@
+name: PrayerBar
+options:
+  bundleIdPrefix: com.yourname
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    DEVELOPMENT_LANGUAGE: en
+targets:
+  PrayerBar:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Shared
+      - path: Resources/Adhan
+        type: folder
+        buildPhase: resources
+    # PrayerBarWidgets dependency dropped for the unsigned local build: it needs an
+    # App Group, which needs a real Team ID. Re-add once Xcode has a signing team.
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: PrayerBar
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.lifestyle
+        NSLocationUsageDescription: PrayerBar uses your location to calculate accurate prayer times.
+        NSLocationWhenInUseUsageDescription: PrayerBar uses your location to calculate accurate prayer times.
+        AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+        CFBundleLocalizations: [en, ar, tr, ur, fr, id]
+        CFBundleDevelopmentRegion: en
+    # App Sandbox + App Groups dropped for the unsigned local build (they need a real
+    # Team ID). Re-add com.apple.security.app-sandbox/application-groups once signed.
+    entitlements:
+      path: Sources/PrayerBar.entitlements
+      properties:
+        com.apple.security.personal-information.location: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-only: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.PrayerBar
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  PrayerBarWidgets:
+    type: app-extension
+    platform: macOS
+    deploymentTarget: "14.0"   # desktop widgets need macOS 14 (Sonoma)
+    sources:
+      - path: Widgets
+      - path: Shared
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: PrayerBar Widgets
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+        ATSApplicationFontsPath: "."   # loads the bundled Amiri Quran font
+    entitlements:
+      path: Widgets/PrayerBarWidgets.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.PrayerBar.Widgets
