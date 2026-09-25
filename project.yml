@@ -36,6 +36,9 @@ targets:
         AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.Salawaty"
         CFBundleLocalizations: [en, ar, tr, ur, fr, id]
         CFBundleDevelopmentRegion: en
+        CFBundleURLTypes:
+          - CFBundleURLName: com.yourname.Salawaty
+            CFBundleURLSchemes: [salawaty]
     entitlements:
       path: Sources/Salawaty.entitlements
       properties:

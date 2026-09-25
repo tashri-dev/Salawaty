@@ -1,8 +1,17 @@
 import AppKit
 import SwiftUI
 
+/// Handles `salawaty://` URLs (e.g. the widgets' "المزيد" tile) — MenuBarExtra
+/// scenes don't support `.onOpenURL`, so this is done at the AppKit level instead.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func application(_ application: NSApplication, open urls: [URL]) {
+        NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
 @main
 struct SalawatyApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var state: AppState
 
     init() {

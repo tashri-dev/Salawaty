@@ -85,8 +85,10 @@ struct TrackingSmallView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                TrackingTile(symbol: "square.grid.2x2", name: "المزيد", isDone: false)
-                    .opacity(0.6)
+                Link(destination: URL(string: "salawaty://tracking")!) {
+                    TrackingTile(symbol: "square.grid.2x2", name: "المزيد", isDone: false)
+                        .opacity(0.6)
+                }
             }
             .arabicLayout()
         } else {
