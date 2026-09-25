@@ -2,8 +2,12 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      custom_tag:
+        description: "Force a specific tag (e.g. v1.0.0), skipping Conventional Commit detection"
+        required: false
 
 permissions:
   contents: write
@@ -13,43 +17,54 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine next version from Conventional Commits
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v7
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: false
+          release_branches: main
+          custom_tag: ${{ github.event.inputs.custom_tag }}
 
       - name: Install XcodeGen
+        if: steps.tag_version.outputs.new_tag != ''
         run: brew install xcodegen
 
       - name: Generate Xcode project
+        if: steps.tag_version.outputs.new_tag != ''
         run: xcodegen generate
 
-      - name: Determine version from tag
-        id: version
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Build Release (unsigned)
+        if: steps.tag_version.outputs.new_tag != ''
         run: |
           rm -rf build
           xcodebuild -project Salawaty.xcodeproj -scheme Salawaty -configuration Release \
             -destination 'platform=macOS' \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
-            MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+            MARKETING_VERSION="${{ steps.tag_version.outputs.new_version }}" \
             -derivedDataPath build clean build
 
       - name: Ad-hoc sign
+        if: steps.tag_version.outputs.new_tag != ''
         run: codesign --force --deep --sign - "build/Build/Products/Release/Salawaty.app"
 
       - name: Package DMG
+        if: steps.tag_version.outputs.new_tag != ''
         run: |
           STAGE=$(mktemp -d)
           cp -R "build/Build/Products/Release/Salawaty.app" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
-          hdiutil create -volname "Salawaty" -srcfolder "$STAGE" -ov -format UDZO "Salawaty-${{ steps.version.outputs.version }}.dmg"
+          hdiutil create -volname "Salawaty" -srcfolder "$STAGE" -ov -format UDZO "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg"
 
       - name: Publish GitHub Release
+        if: steps.tag_version.outputs.new_tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" \
-            "Salawaty-${{ steps.version.outputs.version }}.dmg" \
-            --title "Salawaty ${{ github.ref_name }}" \
+          gh release create "${{ steps.tag_version.outputs.new_tag }}" \
+            "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg" \
+            --title "Salawaty ${{ steps.tag_version.outputs.new_tag }}" \
             --generate-notes
