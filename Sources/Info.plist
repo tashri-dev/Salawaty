@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>AppGroupIdentifier</key>
-	<string>$(TeamIdentifierPrefix)com.yourname.PrayerBar</string>
+	<string>$(TeamIdentifierPrefix)com.yourname.Salawaty</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>PrayerBar</string>
+	<string>Salawaty</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -36,8 +36,8 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSLocationUsageDescription</key>
-	<string>PrayerBar uses your location to calculate accurate prayer times.</string>
+	<string>Salawaty uses your location to calculate accurate prayer times.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>PrayerBar uses your location to calculate accurate prayer times.</string>
+	<string>Salawaty uses your location to calculate accurate prayer times.</string>
 </dict>
 </plist>

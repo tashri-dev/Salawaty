@@ -23,7 +23,7 @@ struct AdhanSound: Identifiable, Hashable {
 
 /// Adhan recordings are plain audio files. They are looked up in two places:
 ///  1. `Adhan/` inside the app bundle (files you ship with the app)
-///  2. `~/Library/Containers/<bundle id>/Data/Library/Application Support/PrayerBar/Adhan`
+///  2. `~/Library/Containers/<bundle id>/Data/Library/Application Support/Salawaty/Adhan`
 ///     (files the user adds from Settings → "Add Sound…")
 ///
 /// Name a file after a reciter id below (e.g. `abdulbasit.mp3`) to get a nice title.
@@ -53,7 +53,7 @@ enum AdhanLibrary {
 
     static var userFolder: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("PrayerBar/Adhan", isDirectory: true)
+            .appendingPathComponent("Salawaty/Adhan", isDirectory: true)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base
     }

@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @main
-struct PrayerBarApp: App {
+struct SalawatyApp: App {
     @StateObject private var state: AppState
 
     init() {
@@ -126,7 +126,7 @@ struct MenuContentView: View {
     private var missingLocationCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             if Prefs.useDeviceLocation && location.status == .notDetermined {
-                Text("PrayerBar needs your location to calculate prayer times.")
+                Text("Salawaty needs your location to calculate prayer times.")
                 Button("Allow Location Access") { location.requestPermission() }
                 Button("Enter a city instead") { showingSettings = true }.buttonStyle(.link)
             } else if Prefs.useDeviceLocation && location.isAuthorized {

@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>$(TeamIdentifierPrefix)com.yourname.PrayerBar</string>
+		<string>$(TeamIdentifierPrefix)com.yourname.Salawaty</string>
 	</array>
 	<key>com.apple.security.files.user-selected.read-only</key>
 	<true/>

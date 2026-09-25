@@ -69,14 +69,48 @@ extension View {
     }
 }
 
+/// One toggleable cell in the tracking widgets: symbol, name, and a checkmark when done.
+struct TrackingTile: View {
+    let symbol: String
+    let name: String
+    let isDone: Bool
+
+    var body: some View {
+        VStack(spacing: 4) {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: symbol)
+                    .font(.title3)
+                    .foregroundStyle(isDone ? Color.accentColor : .secondary)
+                if isDone {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(Color.accentColor)
+                        .offset(x: 8, y: -4)
+                }
+            }
+            Text(name)
+                .font(.caption2.weight(.medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .foregroundStyle(isDone ? Color.primary : .secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(isDone ? Color.accentColor.opacity(0.15) : Color.white.opacity(0.06))
+        )
+    }
+}
+
 struct NoLocationView: View {
     var body: some View {
         VStack(spacing: 6) {
             Image(systemName: "location.slash").font(.title2).foregroundStyle(.secondary)
-            Text("افتح PrayerBar لتحديد موقعك")
+            Text("افتح Salawaty لتحديد موقعك")
                 .font(.callout.weight(.semibold))
                 .multilineTextAlignment(.center)
-            Text("Open PrayerBar to set your location")
+            Text("Open Salawaty to set your location")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

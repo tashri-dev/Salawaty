@@ -42,7 +42,7 @@ struct WidgetSnapshot: Codable, Equatable {
 enum SharedStore {
     private static let snapshotKey = "widgetSnapshot"
 
-    /// Comes from the `AppGroupIdentifier` Info.plist key ("<TeamID>.com.yourname.PrayerBar"),
+    /// Comes from the `AppGroupIdentifier` Info.plist key ("<TeamID>.com.yourname.Salawaty"),
     /// so the Team ID never has to be typed into code.
     static var groupID: String? {
         Bundle.main.object(forInfoDictionaryKey: "AppGroupIdentifier") as? String

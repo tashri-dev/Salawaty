@@ -1,36 +1,36 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "PrayerBar needs your location to calculate prayer times.": {
+    "Salawaty needs your location to calculate prayer times.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يحتاج PrayerBar إلى موقعك لحساب مواقيت الصلاة بدقة."
+            "value": "يحتاج Salawaty إلى موقعك لحساب مواقيت الصلاة بدقة."
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrayerBar, doğru namaz vakitlerini hesaplamak için konumunuza ihtiyaç duyar."
+            "value": "Salawaty, doğru namaz vakitlerini hesaplamak için konumunuza ihtiyaç duyar."
           }
         },
         "ur": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrayerBar کو نماز کے درست اوقات معلوم کرنے کے لیے آپ کے مقام کی ضرورت ہے۔"
+            "value": "Salawaty کو نماز کے درست اوقات معلوم کرنے کے لیے آپ کے مقام کی ضرورت ہے۔"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrayerBar a besoin de votre position pour calculer les heures de prière avec précision."
+            "value": "Salawaty a besoin de votre position pour calculer les heures de prière avec précision."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrayerBar memerlukan lokasi Anda untuk menghitung waktu salat secara akurat."
+            "value": "Salawaty memerlukan lokasi Anda untuk menghitung waktu salat secara akurat."
           }
         }
       }

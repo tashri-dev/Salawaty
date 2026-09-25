@@ -29,27 +29,27 @@ jobs:
       - name: Build Release (unsigned)
         run: |
           rm -rf build
-          xcodebuild -project PrayerBar.xcodeproj -scheme PrayerBar -configuration Release \
+          xcodebuild -project Salawaty.xcodeproj -scheme Salawaty -configuration Release \
             -destination 'platform=macOS' \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
             MARKETING_VERSION="${{ steps.version.outputs.version }}" \
             -derivedDataPath build clean build
 
       - name: Ad-hoc sign
-        run: codesign --force --deep --sign - "build/Build/Products/Release/PrayerBar.app"
+        run: codesign --force --deep --sign - "build/Build/Products/Release/Salawaty.app"
 
       - name: Package DMG
         run: |
           STAGE=$(mktemp -d)
-          cp -R "build/Build/Products/Release/PrayerBar.app" "$STAGE/"
+          cp -R "build/Build/Products/Release/Salawaty.app" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
-          hdiutil create -volname "PrayerBar" -srcfolder "$STAGE" -ov -format UDZO "PrayerBar-${{ steps.version.outputs.version }}.dmg"
+          hdiutil create -volname "Salawaty" -srcfolder "$STAGE" -ov -format UDZO "Salawaty-${{ steps.version.outputs.version }}.dmg"
 
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${{ github.ref_name }}" \
-            "PrayerBar-${{ steps.version.outputs.version }}.dmg" \
-            --title "PrayerBar ${{ github.ref_name }}" \
+            "Salawaty-${{ steps.version.outputs.version }}.dmg" \
+            --title "Salawaty ${{ github.ref_name }}" \
             --generate-notes

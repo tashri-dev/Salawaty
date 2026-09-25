@@ -5,11 +5,11 @@
 	<key>ATSApplicationFontsPath</key>
 	<string>.</string>
 	<key>AppGroupIdentifier</key>
-	<string>$(TeamIdentifierPrefix)com.yourname.PrayerBar</string>
+	<string>$(TeamIdentifierPrefix)com.yourname.Salawaty</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>PrayerBar Widgets</string>
+	<string>Salawaty Widgets</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

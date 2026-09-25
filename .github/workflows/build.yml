@@ -20,7 +20,7 @@ jobs:
 
       - name: Build (unsigned)
         run: |
-          xcodebuild -project PrayerBar.xcodeproj -scheme PrayerBar -configuration Debug \
+          xcodebuild -project Salawaty.xcodeproj -scheme Salawaty -configuration Debug \
             -destination 'platform=macOS' \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
             build

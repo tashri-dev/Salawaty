@@ -1,4 +1,4 @@
-# PrayerBar — مواقيت الصلاة في شريط القوائم
+# Salawaty — مواقيت الصلاة في شريط القوائم
 
 A macOS menu bar app (macOS 13+, desktop widgets on macOS 14+) that shows prayer times, a live countdown to the next prayer,
 and rotating adhkar, duas and Quran verses.
@@ -6,15 +6,15 @@ and rotating adhkar, duas and Quran verses.
 ## Build (option A — XcodeGen, fastest)
 ```bash
 brew install xcodegen
-cd PrayerBar
+cd Salawaty
 xcodegen generate
-open PrayerBar.xcodeproj
+open Salawaty.xcodeproj
 ```
 Select your Team under Signing & Capabilities, then press ⌘R.
 
 ## Build (option B — plain Xcode)
-1. Xcode → New Project → macOS → App (SwiftUI). Name it `PrayerBar`, deployment target macOS 13.
-2. Delete the generated `ContentView.swift` and `PrayerBarApp.swift`, then drag in everything from `Sources/`.
+1. Xcode → New Project → macOS → App (SwiftUI). Name it `Salawaty`, deployment target macOS 13.
+2. Delete the generated `ContentView.swift` and `SalawatyApp.swift`, then drag in everything from `Sources/`.
 3. Target → Info: add
    - `Application is agent (UIElement)` = YES (hides the Dock icon)
    - `Privacy - Location When In Use Usage Description` and `Privacy - Location Usage Description`
@@ -76,7 +76,7 @@ Online sources download last, this and next month from `api.aladhan.com/v1/gToHC
 keep working offline and fall back to Umm al-Qura only if nothing was ever downloaded.
 
 ## Desktop widgets (macOS 14+)
-Four widgets, in Arabic, right-to-left. Add them by right-clicking the desktop → **Edit Widgets** → PrayerBar.
+Five widgets, in Arabic, right-to-left. Add them by right-clicking the desktop → **Edit Widgets** → Salawaty.
 
 | Widget | Size | Shows |
 |---|---|---|
@@ -84,6 +84,7 @@ Four widgets, in Arabic, right-to-left. Add them by right-clicking the desktop �
 | Next Prayer · الصلاة القادمة | Small | Next prayer, its time and a countdown |
 | Hijri Date · التاريخ الهجري | Small | Weekday + Hijri month, big Hijri day, Gregorian day and month |
 | Verse & Dhikr · آية وذكر | Small / Medium / Large | A Quran verse (﴿ ﴾), dhikr or dua with its source. Right-click → **Edit** to choose content, how often it changes and whether to show the English meaning |
+| Tracking · متابعة العبادات | Small / Large | Tap-to-complete checklist for the five prayers plus daily Quran, adhkar, sunnah and nawafil, with a progress bar on the large size |
 
 How it works:
 - Widgets can't use location themselves. The app saves the resolved location and calculation settings into a
@@ -93,8 +94,8 @@ How it works:
 - Verses use the **Amiri Quran** font (SIL Open Font License, bundled in `Widgets/Fonts`).
 
 Setup notes:
-- Pick the **same Team** for both targets (PrayerBar and PrayerBarWidgets) under Signing & Capabilities.
-  The App Group id is built from your Team ID automatically (`<TeamID>.com.yourname.PrayerBar`).
+- Pick the **same Team** for both targets (Salawaty and SalawatyWidgets) under Signing & Capabilities.
+  The App Group id is built from your Team ID automatically (`<TeamID>.com.yourname.Salawaty`).
 - If you change `com.yourname`, change it everywhere in `project.yml`.
 - After rebuilding, if the widget gallery shows an old version, quit the app and run it again from Xcode.
 

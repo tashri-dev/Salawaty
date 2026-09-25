@@ -1,4 +1,4 @@
-name: PrayerBar
+name: Salawaty
 options:
   bundleIdPrefix: com.yourname
   deploymentTarget:
@@ -14,7 +14,7 @@ settings:
     SWIFT_EMIT_LOC_STRINGS: YES
     DEVELOPMENT_LANGUAGE: en
 targets:
-  PrayerBar:
+  Salawaty:
     type: application
     platform: macOS
     sources:
@@ -24,33 +24,33 @@ targets:
         type: folder
         buildPhase: resources
     dependencies:
-      - target: PrayerBarWidgets   # embedded in PrayerBar.app/Contents/PlugIns
+      - target: SalawatyWidgets   # embedded in Salawaty.app/Contents/PlugIns
     info:
       path: Sources/Info.plist
       properties:
-        CFBundleDisplayName: PrayerBar
+        CFBundleDisplayName: Salawaty
         LSUIElement: true
         LSApplicationCategoryType: public.app-category.lifestyle
-        NSLocationUsageDescription: PrayerBar uses your location to calculate accurate prayer times.
-        NSLocationWhenInUseUsageDescription: PrayerBar uses your location to calculate accurate prayer times.
-        AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+        NSLocationUsageDescription: Salawaty uses your location to calculate accurate prayer times.
+        NSLocationWhenInUseUsageDescription: Salawaty uses your location to calculate accurate prayer times.
+        AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.Salawaty"
         CFBundleLocalizations: [en, ar, tr, ur, fr, id]
         CFBundleDevelopmentRegion: en
     entitlements:
-      path: Sources/PrayerBar.entitlements
+      path: Sources/Salawaty.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.personal-information.location: true
         com.apple.security.network.client: true
         com.apple.security.files.user-selected.read-only: true
         com.apple.security.application-groups:
-          - "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+          - "$(TeamIdentifierPrefix)com.yourname.Salawaty"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.PrayerBar
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.Salawaty
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
-  PrayerBarWidgets:
+  SalawatyWidgets:
     type: app-extension
     platform: macOS
     deploymentTarget: "14.0"   # desktop widgets need macOS 14 (Sonoma)
@@ -60,17 +60,17 @@ targets:
     info:
       path: Widgets/Info.plist
       properties:
-        CFBundleDisplayName: PrayerBar Widgets
+        CFBundleDisplayName: Salawaty Widgets
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
-        AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+        AppGroupIdentifier: "$(TeamIdentifierPrefix)com.yourname.Salawaty"
         ATSApplicationFontsPath: "."   # loads the bundled Amiri Quran font
     entitlements:
-      path: Widgets/PrayerBarWidgets.entitlements
+      path: Widgets/SalawatyWidgets.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups:
-          - "$(TeamIdentifierPrefix)com.yourname.PrayerBar"
+          - "$(TeamIdentifierPrefix)com.yourname.Salawaty"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.PrayerBar.Widgets
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.Salawaty.Widgets
