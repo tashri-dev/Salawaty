@@ -132,6 +132,8 @@ struct SettingsView: View {
                             }
                         }
                 }
+
+                updatesSection
             }
             .formStyle(.grouped)
         }
@@ -150,11 +152,11 @@ struct SettingsView: View {
             }
             Picker("Reciter", selection: $adhanSound) {
                 Text("Automatic").tag("")
-                ForEach(sounds.filter { !$0.isFajr }) { Text($0.title).tag($0.id) }
+                ForEach(sounds.filter { !$0.isFajr && !$0.isSeasonal }) { Text($0.title).tag($0.id) }
             }
             Picker("Fajr adhan", selection: $adhanFajrSound) {
                 Text("Same reciter (Fajr version if available)").tag("")
-                ForEach(sounds) { Text($0.title).tag($0.id) }
+                ForEach(sounds.filter { !$0.isSeasonal }) { Text($0.title).tag($0.id) }
             }
             HStack {
                 Image(systemName: "speaker.fill").foregroundStyle(.secondary)
@@ -253,6 +255,29 @@ struct SettingsView: View {
             Text("If your country announced the start of the month a day earlier or later after the moon sighting, adjust by that many days here.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    // MARK: Updates
+
+    private var updatesSection: some View {
+        Section("Updates") {
+            HStack {
+                Text("Version")
+                Spacer()
+                Text(UpdateChecker.currentVersionString).foregroundStyle(.secondary)
+            }
+            HStack {
+                if let update = state.updateAvailable {
+                    Text("\(update.version) available").font(.caption).foregroundStyle(.orange)
+                    Spacer()
+                    Button("View") { NSWorkspace.shared.open(update.url) }
+                } else {
+                    Text("You're up to date.").font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Check Now") { state.checkForUpdates() }
+                }
+            }
         }
     }
 

@@ -15,6 +15,8 @@ final class AppState: ObservableObject {
     @Published private(set) var seasonalPrompt: SeasonalOccasion?
     /// Days until the next Ramadan starts, nil during Ramadan itself.
     @Published private(set) var daysUntilRamadan: Int?
+    /// Non-nil once a newer GitHub release is found.
+    @Published private(set) var updateAvailable: UpdateInfo?
 
     let location = LocationService()
     let player = AdhanPlayer()
@@ -80,6 +82,19 @@ final class AppState: ObservableObject {
         location.start()
         rebuildDhikrTimer()
         refreshHijri(force: false)
+        checkForUpdates()
+    }
+
+    /// Checks GitHub Releases once; called on launch and from Settings' manual "Check Now".
+    func checkForUpdates() {
+        Task { [weak self] in
+            let info = await UpdateChecker.checkForUpdate()
+            await MainActor.run { self?.updateAvailable = info }
+        }
+    }
+
+    func dismissUpdateBanner() {
+        updateAvailable = nil
     }
 
     // MARK: Derived values

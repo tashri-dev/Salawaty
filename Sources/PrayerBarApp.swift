@@ -50,6 +50,10 @@ struct MenuContentView: View {
         VStack(alignment: .leading, spacing: 12) {
             header
 
+            if let update = state.updateAvailable {
+                UpdateAvailableCard(update: update, onDismiss: state.dismissUpdateBanner)
+            }
+
             if let days = state.daysUntilRamadan {
                 RamadanCountdownCard(days: days)
             }
@@ -231,6 +235,29 @@ struct AdhanPlayingCard: View {
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.orange.opacity(0.15)))
+    }
+}
+
+struct UpdateAvailableCard: View {
+    let update: UpdateInfo
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "arrow.down.circle.fill")
+                .font(.title2)
+                .foregroundStyle(.blue)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Update available").font(.caption).foregroundStyle(.secondary)
+                Text(update.version).font(.headline)
+            }
+            Spacer()
+            Button("Dismiss", action: onDismiss)
+                .buttonStyle(.borderless)
+            Button("View") { NSWorkspace.shared.open(update.url) }
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.blue.opacity(0.15)))
     }
 }
 

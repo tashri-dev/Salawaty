@@ -35,7 +35,7 @@ enum SeasonalOccasion: String, CaseIterable {
     /// File ids (without extension) to look for in `Resources/Adhan`, in preference order.
     var candidateSoundIds: [String] {
         switch self {
-        case .eidFitr, .eidAdha: return ["eid-mecca", "eid-madina"]
+        case .eidFitr, .eidAdha: return ["eid-makkah", "eid-madina"]
         case .hajj: return ["haj-labyk"]
         }
     }

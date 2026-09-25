@@ -16,6 +16,9 @@ struct AdhanSound: Identifiable, Hashable {
     let url: URL
     let title: String
     var isFajr: Bool { id.hasSuffix("_fajr") }
+    /// Eid takbir / Hajj talbiyah recordings — played by the seasonal-audio feature only,
+    /// never offered as a regular per-prayer adhan.
+    var isSeasonal: Bool { AdhanLibrary.seasonalTitles[id] != nil }
 }
 
 /// Adhan recordings are plain audio files. They are looked up in two places:
@@ -36,9 +39,14 @@ enum AdhanLibrary {
         Reciter(id: "husary", english: "Sheikh Mahmoud Khalil El-Husary", arabic: "الشيخ محمود خليل الحصري"),
         Reciter(id: "minshawi", english: "Sheikh Mohamed Siddiq El-Minshawi", arabic: "الشيخ محمد صديق المنشاوي"),
         Reciter(id: "makkah", english: "Adhan in Makkah", arabic: "اذان مكة"),
-        Reciter(id: "eid-madina", english: "Eid in Madina", arabic: "تكبيرات العيد في المدينة"),
-        Reciter(id: "eid-makkah", english: "Eid in Makkah", arabic: "تكبيرات العيد في مكة"),
-        Reciter(id: "haj-labyk", english: "Haj: Labyk Allahumma Labyk", arabic: "الحج: لبيك اللهم لبيك"),
+    ]
+
+    /// Eid takbir / Hajj talbiyah recordings — kept out of `reciters` so they never show up
+    /// as a regular per-prayer adhan choice; only the Seasonal audio settings offer them.
+    static let seasonalTitles: [String: String] = [
+        "eid-madina": "Eid in Madina · تكبيرات العيد في المدينة",
+        "eid-makkah": "Eid in Makkah · تكبيرات العيد في مكة",
+        "haj-labyk": "Haj: Labyk Allahumma Labyk · الحج: لبيك اللهم لبيك",
     ]
 
     static let audioExtensions: Set<String> = ["mp3", "m4a", "aac", "wav", "aiff", "aif", "caf"]
@@ -69,6 +77,7 @@ enum AdhanLibrary {
         let isFajr = id.hasSuffix("_fajr")
         let base = isFajr ? String(id.dropLast(5)) : id
         let name = reciters.first { $0.id == base }.map { "\($0.english) · \($0.arabic)" }
+            ?? seasonalTitles[base]
             ?? base.replacingOccurrences(of: "_", with: " ")
         return isFajr ? "\(name) (Fajr)" : name
     }
@@ -85,7 +94,7 @@ enum AdhanLibrary {
         if prayer == .fajr, let explicit = byId(d.string(forKey: PrefKey.adhanFajrSound)) {
             return explicit
         }
-        let base = byId(d.string(forKey: PrefKey.adhanSound)) ?? sounds.first { !$0.isFajr } ?? sounds.first
+        let base = byId(d.string(forKey: PrefKey.adhanSound)) ?? sounds.first { !$0.isFajr && !$0.isSeasonal } ?? sounds.first
         if prayer == .fajr, let base, let variant = byId(base.id + "_fajr") {
             return variant
         }
