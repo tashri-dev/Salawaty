@@ -126,6 +126,20 @@ enum UpdateInstaller {
         try FileManager.default.createDirectory(at: stagingDir, withIntermediateDirectories: true)
         let stagedAppURL = stagingDir.appendingPathComponent(appURL.lastPathComponent)
         try FileManager.default.copyItem(at: appURL, to: stagedAppURL)
+        clearQuarantine(stagedAppURL)
         return stagedAppURL
+    }
+
+    /// Removes the com.apple.quarantine flag Gatekeeper would otherwise set on a
+    /// downloaded app, which — without a paid Developer ID + notarization — would
+    /// block the relaunch after install with the same "Not Opened" dialog a fresh
+    /// manual DMG download shows. Safe here: this app already trusts and just
+    /// verified (checksum) the copy it downloaded from its own GitHub releases.
+    private static func clearQuarantine(_ url: URL) {
+        let xattr = Process()
+        xattr.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+        xattr.arguments = ["-dr", "com.apple.quarantine", url.path]
+        try? xattr.run()
+        xattr.waitUntilExit()
     }
 }
