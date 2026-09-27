@@ -53,6 +53,9 @@ struct MenuContentView: View {
             }
         }
         .frame(width: 340)
+        // The menu bar window is translucent glass on recent macOS, which lets busy
+        // windows behind it show through the text. Keep it opaque so it stays readable.
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 
     private var main: some View {
