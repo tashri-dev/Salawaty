@@ -57,6 +57,7 @@ struct SettingsView: View {
     @AppStorage(PrefKey.menuArabicNames) private var menuArabic = false
     @AppStorage(PrefKey.menuIqamahName) private var menuIqamahName = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @State private var confirmingReset = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -141,6 +142,7 @@ struct SettingsView: View {
                 }
 
                 updatesSection
+                resetSection
             }
             .formStyle(.grouped)
         }
@@ -285,6 +287,19 @@ struct SettingsView: View {
                     Button("Check Now") { state.checkForUpdates() }
                 }
             }
+        }
+    }
+
+    // MARK: Reset
+
+    private var resetSection: some View {
+        Section {
+            Button("Reset All Settings…", role: .destructive) { confirmingReset = true }
+                .confirmationDialog("Reset all settings?", isPresented: $confirmingReset) {
+                    Button("Reset and Relaunch", role: .destructive) { state.resetEverything() }
+                } message: {
+                    Text("Your location, calculation, adhan, iqamah and widget data will be cleared and Salawaty will restart.")
+                }
         }
     }
 

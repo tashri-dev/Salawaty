@@ -82,6 +82,11 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
+    func removeAll() {
+        center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
+    }
+
     func post(_ item: DhikrItem) {
         let content = UNMutableNotificationContent()
         content.title = item.category.title

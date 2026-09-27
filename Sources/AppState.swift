@@ -137,6 +137,27 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// Wipes every setting, the widgets' shared data and pending notifications, then
+    /// relaunches fresh. Location permission itself can only be revoked in System Settings.
+    func resetEverything() {
+        cancellables.removeAll()   // nothing may write the old state back while quitting
+        player.stop()
+        notifications.removeAll()
+
+        if let id = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: id)
+        }
+        SharedStore.defaults?.removePersistentDomain(forName: SharedStore.suiteName)
+        WidgetCenter.shared.reloadAllTimelines()
+
+        // Relaunch from a detached shell once this instance has quit.
+        let relaunch = Process()
+        relaunch.executableURL = URL(fileURLWithPath: "/bin/sh")
+        relaunch.arguments = ["-c", "sleep 1; /usr/bin/open -n \"$0\"", Bundle.main.bundlePath]
+        try? relaunch.run()
+        NSApp.terminate(nil)
+    }
+
     func dismissUpdateBanner() {
         updateAvailable = nil
         updateStage = .idle
