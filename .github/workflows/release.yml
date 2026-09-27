@@ -49,7 +49,7 @@ jobs:
 
       - name: Ad-hoc sign
         if: steps.tag_version.outputs.new_tag != ''
-        run: codesign --force --deep --sign - "build/Build/Products/Release/Salawaty.app"
+        run: scripts/adhoc-sign.sh "build/Build/Products/Release/Salawaty.app"
 
       - name: Package DMG
         if: steps.tag_version.outputs.new_tag != ''

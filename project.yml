@@ -77,6 +77,10 @@ targets:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups:
           - "$(TeamIdentifierPrefix)com.yourname.Salawaty"
+        # Ad-hoc release builds have no Team ID, so no App Group: SharedStore falls back
+        # to this preferences domain, which the sandboxed widget may then read and write.
+        com.apple.security.temporary-exception.shared-preference.read-write:
+          - com.yourname.Salawaty.shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.yourname.Salawaty.Widgets

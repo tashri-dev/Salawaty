@@ -42,15 +42,21 @@ struct WidgetSnapshot: Codable, Equatable {
 enum SharedStore {
     private static let snapshotKey = "widgetSnapshot"
 
+    /// Used when there's no real App Group: ad-hoc signed release builds have no Team ID.
+    /// The sandboxed widget reaches this domain through its
+    /// `temporary-exception.shared-preference.read-write` entitlement.
+    static let fallbackSuite = "com.yourname.Salawaty.shared"
+
     /// Comes from the `AppGroupIdentifier` Info.plist key ("<TeamID>.com.yourname.Salawaty"),
-    /// so the Team ID never has to be typed into code.
-    static var groupID: String? {
-        Bundle.main.object(forInfoDictionaryKey: "AppGroupIdentifier") as? String
+    /// so the Team ID never has to be typed into code. Without a Team ID the key resolves to
+    /// the bare bundle ID, which UserDefaults rejects as a suite name — use the fallback then.
+    static var suiteName: String {
+        let id = Bundle.main.object(forInfoDictionaryKey: "AppGroupIdentifier") as? String ?? ""
+        let hasTeamPrefix = id.range(of: #"^[A-Z0-9]{10}\."#, options: .regularExpression) != nil
+        return hasTeamPrefix ? id : fallbackSuite
     }
 
-    static var defaults: UserDefaults? {
-        groupID.flatMap { UserDefaults(suiteName: $0) }
-    }
+    static var defaults: UserDefaults? { UserDefaults(suiteName: suiteName) }
 
     static func load() -> WidgetSnapshot? {
         guard let data = defaults?.data(forKey: snapshotKey) else { return nil }
