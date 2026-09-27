@@ -12,6 +12,8 @@ struct WidgetSnapshot: Codable, Equatable {
     var highLatitudeRule: String
     var hijriSource: String
     var hijriAdjustment: Int
+    /// Per-prayer minute corrections keyed by `Prayer.rawValue`; optional so older data still decodes.
+    var adjustments: [String: Int]? = nil
 
     var hijri: (source: HijriSource, adjustment: Int) {
         (HijriSource(rawValue: hijriSource) ?? .ummAlQura, hijriAdjustment)
@@ -22,7 +24,10 @@ struct WidgetSnapshot: Codable, Equatable {
     var calculator: PrayerCalculator {
         PrayerCalculator(method: CalculationMethod(rawValue: method) ?? .mwl,
                          asr: AsrMethod(rawValue: asrMethod) ?? .standard,
-                         highLatitude: HighLatitudeRule(rawValue: highLatitudeRule) ?? .angleBased)
+                         highLatitude: HighLatitudeRule(rawValue: highLatitudeRule) ?? .angleBased,
+                         adjustments: Dictionary(uniqueKeysWithValues: (adjustments ?? [:]).compactMap { k, v in
+                             Prayer(rawValue: k).map { ($0, v) }
+                         }))
     }
 
     func schedule(for date: Date) -> PrayerSchedule {

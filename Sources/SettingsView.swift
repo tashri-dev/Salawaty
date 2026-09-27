@@ -90,6 +90,13 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Adjust times") {
+                    ForEach(Prayer.allCases) { AdjustmentRow(prayer: $0) }
+                    Text("Shift a time to match your local mosque or official timetable.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 Section("Notifications") {
                     Toggle("Alert at prayer times", isOn: $prayerAlerts)
                     Picker("Early reminder", selection: $minutesBefore) {
@@ -376,6 +383,25 @@ private struct AdhanPrayerToggle: View {
 
     var body: some View {
         Toggle(prayer.englishName, isOn: $isOn).toggleStyle(.checkbox)
+    }
+}
+
+private struct AdjustmentRow: View {
+    let prayer: Prayer
+    @AppStorage private var minutes: Int
+
+    init(prayer: Prayer) {
+        self.prayer = prayer
+        _minutes = AppStorage(wrappedValue: 0, PrefKey.adjustment(prayer))
+    }
+
+    var body: some View {
+        HStack {
+            Text(prayer.englishName)
+            Spacer()
+            Stepper(minutes == 0 ? "No change" : String(format: "%+d min", minutes),
+                    value: $minutes, in: -30...30)
+        }
     }
 }
 

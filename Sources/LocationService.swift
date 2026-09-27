@@ -8,6 +8,8 @@ struct ResolvedLocation: Equatable {
     var name: String
     var timeZone: TimeZone
     var isDevice: Bool
+    /// ISO code such as "OM"; nil until the place has been geocoded.
+    var countryCode: String? = nil
 }
 
 enum LocationError: LocalizedError {
@@ -89,6 +91,7 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
                 self.defaults.set(loc.coordinate.longitude, forKey: PrefKey.manualLongitude)
                 self.defaults.set(name, forKey: PrefKey.manualName)
                 self.defaults.set((p.timeZone ?? .current).identifier, forKey: PrefKey.manualTimeZone)
+                self.defaults.set(p.isoCountryCode, forKey: PrefKey.manualCountryCode)
                 self.defaults.set(false, forKey: PrefKey.useDeviceLocation) // explicit choice wins
                 self.stopDevice()
                 self.applyManual()
@@ -135,7 +138,8 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
                                                  longitude: loc.coordinate.longitude,
                                                  name: Self.displayName(for: p) ?? coordName,
                                                  timeZone: p.timeZone ?? .current,
-                                                 isDevice: true)
+                                                 isDevice: true,
+                                                 countryCode: p.isoCountryCode)
             }
         }
     }
@@ -151,7 +155,8 @@ final class LocationService: NSObject, ObservableObject, CLLocationManagerDelega
         let tz = defaults.string(forKey: PrefKey.manualTimeZone).flatMap(TimeZone.init(identifier:)) ?? .current
         resolved = ResolvedLocation(latitude: lat, longitude: lng,
                                     name: defaults.string(forKey: PrefKey.manualName) ?? "Custom location",
-                                    timeZone: tz, isDevice: false)
+                                    timeZone: tz, isDevice: false,
+                                    countryCode: defaults.string(forKey: PrefKey.manualCountryCode))
     }
 
     private static func displayName(for p: CLPlacemark) -> String? {

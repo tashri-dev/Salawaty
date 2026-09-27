@@ -49,6 +49,7 @@ final class AppState: ObservableObject {
         location.$resolved
             .removeDuplicates()
             .sink { [weak self] place in
+                Self.pickRegionalMethod(for: place)
                 self?.place = place
                 self?.recompute()
             }
@@ -265,7 +266,8 @@ final class AppState: ObservableObject {
         }
         let calc = PrayerCalculator(method: Prefs.method,
                                     asr: Prefs.asrMethod,
-                                    highLatitude: Prefs.highLatitudeRule)
+                                    highLatitude: Prefs.highLatitudeRule,
+                                    adjustments: Prefs.adjustments)
         var cal = Calendar(identifier: .gregorian)
         cal.timeZone = place.timeZone
         let nextDay = cal.date(byAdding: .day, value: 1, to: now) ?? now.addingTimeInterval(86_400)
@@ -278,6 +280,13 @@ final class AppState: ObservableObject {
         updateWidgets(for: place)
     }
 
+    /// Uses the local authority's method when the user hasn't chosen one themselves.
+    private static func pickRegionalMethod(for place: ResolvedLocation?) {
+        guard UserDefaults.standard.object(forKey: PrefKey.method) == nil,
+              place?.countryCode == "OM" else { return }
+        UserDefaults.standard.set(CalculationMethod.oman.rawValue, forKey: PrefKey.method)
+    }
+
     /// Shares location + calculation settings with the widgets, reloading them only on change.
     private func updateWidgets(for place: ResolvedLocation) {
         let snapshot = WidgetSnapshot(latitude: place.latitude,
@@ -288,7 +297,8 @@ final class AppState: ObservableObject {
                                       asrMethod: Prefs.asrMethod.rawValue,
                                       highLatitudeRule: Prefs.highLatitudeRule.rawValue,
                                       hijriSource: Prefs.hijriSource.rawValue,
-                                      hijriAdjustment: Prefs.hijriAdjustment)
+                                      hijriAdjustment: Prefs.hijriAdjustment,
+                                      adjustments: Dictionary(uniqueKeysWithValues: Prefs.adjustments.map { ($0.rawValue, $1) }))
         if SharedStore.save(snapshot) {
             WidgetCenter.shared.reloadAllTimelines()
         }

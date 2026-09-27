@@ -44,6 +44,10 @@ enum PrefKey {
     static let jumuahOffset = "iqamah.offset.jumuah"
     static func iqamahOffset(_ p: Prayer) -> String { "iqamah.offset.\(p.rawValue)" }  // minutes, 0 = off
     static func iqamahFixed(_ p: Prayer) -> String { "iqamah.fixed.\(p.rawValue)" }    // minutes after midnight, -1 = not used
+
+    // Manual per-prayer time corrections
+    static func adjustment(_ p: Prayer) -> String { "adjust.\(p.rawValue)" }          // minutes, -30...+30
+    static let manualCountryCode = "manualCountryCode"
 }
 
 enum Prefs {
@@ -97,6 +101,12 @@ enum Prefs {
     static var useDeviceLocation: Bool { d.bool(forKey: PrefKey.useDeviceLocation) }
     static var method: CalculationMethod { CalculationMethod(rawValue: d.string(forKey: PrefKey.method) ?? "") ?? .mwl }
     static var asrMethod: AsrMethod { AsrMethod(rawValue: d.string(forKey: PrefKey.asrMethod) ?? "") ?? .standard }
+    static var adjustments: [Prayer: Int] {
+        Dictionary(uniqueKeysWithValues: Prayer.allCases.compactMap { p in
+            let v = min(max(d.integer(forKey: PrefKey.adjustment(p)), -30), 30)
+            return v == 0 ? nil : (p, v)
+        })
+    }
     static var highLatitudeRule: HighLatitudeRule {
         HighLatitudeRule(rawValue: d.string(forKey: PrefKey.highLatitudeRule) ?? "") ?? .angleBased
     }

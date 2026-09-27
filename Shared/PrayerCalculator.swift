@@ -62,7 +62,7 @@ enum IshaRule {
 }
 
 enum CalculationMethod: String, CaseIterable, Identifiable {
-    case mwl, isna, egypt, makkah, karachi, dubai, kuwait, qatar, singapore, turkey, france
+    case mwl, isna, egypt, makkah, karachi, dubai, kuwait, qatar, oman, singapore, turkey, france
 
     var id: String { rawValue }
 
@@ -76,6 +76,7 @@ enum CalculationMethod: String, CaseIterable, Identifiable {
         case .dubai: return "Dubai"
         case .kuwait: return "Kuwait"
         case .qatar: return "Qatar"
+        case .oman: return "Oman (Ministry of Awqaf)"
         case .singapore: return "Singapore (MUIS)"
         case .turkey: return "Diyanet (Turkey)"
         case .france: return "UOIF (France)"
@@ -92,6 +93,7 @@ enum CalculationMethod: String, CaseIterable, Identifiable {
         case .dubai: return 18.2
         case .kuwait: return 18
         case .qatar: return 18
+        case .oman: return 18
         case .singapore: return 20
         case .turkey: return 18
         case .france: return 12
@@ -108,11 +110,23 @@ enum CalculationMethod: String, CaseIterable, Identifiable {
         case .dubai: return .angle(18.2)
         case .kuwait: return .angle(17.5)
         case .qatar: return .minutesAfterMaghrib(90)
+        case .oman: return .angle(18)
         case .singapore: return .angle(18)
         case .turkey: return .angle(17)
         case .france: return .angle(12)
         }
     }
+
+    /// Precautionary minutes (ihtiyat) the authority adds to the astronomical time.
+    func offsetMinutes(_ p: Prayer) -> Double {
+        switch self {
+        case .oman: return [.dhuhr, .asr, .maghrib].contains(p) ? 5 : 0
+        default: return 0
+        }
+    }
+
+    /// Oman's published tables round every time up to the next minute.
+    var roundsUp: Bool { self == .oman }
 }
 
 enum AsrMethod: String, CaseIterable, Identifiable {
@@ -141,6 +155,8 @@ struct PrayerCalculator {
     var method: CalculationMethod = .mwl
     var asr: AsrMethod = .standard
     var highLatitude: HighLatitudeRule = .angleBased
+    /// The user's own per-prayer corrections, in minutes.
+    var adjustments: [Prayer: Int] = [:]
 
     func schedule(for date: Date, latitude lat: Double, longitude lng: Double, timeZone tz: TimeZone) -> PrayerSchedule {
         var local = Calendar(identifier: .gregorian)
@@ -196,9 +212,10 @@ struct PrayerCalculator {
         var utc = Calendar(identifier: .gregorian)
         utc.timeZone = TimeZone(identifier: "UTC")!
         let utcMidnight = utc.date(from: DateComponents(year: y, month: m, day: d))!
-        func toDate(_ hours: Double) -> Date? {
+        func toDate(_ hours: Double, _ p: Prayer) -> Date? {
             guard hours.isFinite else { return nil }
-            let minutes = ((hours - tzHours) * 60).rounded()
+            let exact = (hours - tzHours) * 60 + method.offsetMinutes(p)
+            let minutes = (method.roundsUp ? exact.rounded(.up) : exact.rounded()) + Double(adjustments[p] ?? 0)
             return utcMidnight.addingTimeInterval(minutes * 60)
         }
 
@@ -206,7 +223,7 @@ struct PrayerCalculator {
             (.fajr, fajr), (.sunrise, sunrise), (.dhuhr, dhuhr),
             (.asr, asrTime), (.maghrib, maghrib), (.isha, isha)
         ]
-        let entries = raw.compactMap { p, h in toDate(h).map { PrayerTime(prayer: p, date: $0) } }
+        let entries = raw.compactMap { p, h in toDate(h, p).map { PrayerTime(prayer: p, date: $0) } }
         return PrayerSchedule(date: localNoon, timeZone: tz, entries: entries)
     }
 }
