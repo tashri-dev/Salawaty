@@ -303,7 +303,9 @@ final class AppState: ObservableObject {
 
     /// Uses the local authority's method when the user hasn't chosen one themselves.
     private static func pickRegionalMethod(for place: ResolvedLocation?) {
-        guard UserDefaults.standard.object(forKey: PrefKey.method) == nil,
+        // Look only at saved values: object(forKey:) would also see the registered default.
+        let saved = UserDefaults.standard.persistentDomain(forName: Bundle.main.bundleIdentifier ?? "")
+        guard saved?[PrefKey.method] == nil,
               place?.countryCode == "OM" else { return }
         UserDefaults.standard.set(CalculationMethod.oman.rawValue, forKey: PrefKey.method)
     }
