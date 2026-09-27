@@ -28,9 +28,18 @@ struct SemanticVersion: Comparable {
     }
 }
 
+enum UpdateStage: Equatable {
+    case idle
+    case downloading
+    case readyToInstall
+    case failed(String)
+}
+
 struct UpdateInfo: Equatable {
     let version: String   // e.g. "1.2.0"
-    let url: URL
+    let url: URL           // the release's web page, for manual fallback
+    let downloadURL: URL   // the .dmg asset
+    let checksumURL: URL?  // the .dmg.sha256 asset, if published
 }
 
 enum UpdateChecker {
@@ -42,10 +51,17 @@ enum UpdateChecker {
         let html_url: String
         let draft: Bool
         let prerelease: Bool
+        let assets: [Asset]
+    }
+
+    private struct Asset: Decodable {
+        let name: String
+        let browser_download_url: String
     }
 
     /// Compares the latest published GitHub release against the running app's version.
-    /// Returns nil if up to date, unreachable, or the release is a draft/prerelease.
+    /// Returns nil if up to date, unreachable, the release is a draft/prerelease,
+    /// or it has no .dmg asset to download.
     static func checkForUpdate() async -> UpdateInfo? {
         guard let url = URL(string: "https://api.github.com/repos/\(owner)/\(repo)/releases/latest") else { return nil }
         var request = URLRequest(url: url)
@@ -58,9 +74,16 @@ enum UpdateChecker {
               let latest = SemanticVersion(release.tag_name),
               let current = currentVersion,
               latest > current,
-              let releaseURL = URL(string: release.html_url) else { return nil }
+              let releaseURL = URL(string: release.html_url),
+              let dmgAsset = release.assets.first(where: { $0.name.hasSuffix(".dmg") }),
+              let downloadURL = URL(string: dmgAsset.browser_download_url) else { return nil }
 
-        return UpdateInfo(version: release.tag_name, url: releaseURL)
+        let checksumURL = release.assets
+            .first { $0.name.hasSuffix(".dmg.sha256") }
+            .flatMap { URL(string: $0.browser_download_url) }
+
+        return UpdateInfo(version: release.tag_name, url: releaseURL,
+                          downloadURL: downloadURL, checksumURL: checksumURL)
     }
 
     static var currentVersion: SemanticVersion? {

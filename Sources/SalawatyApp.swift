@@ -60,7 +60,8 @@ struct MenuContentView: View {
             header
 
             if let update = state.updateAvailable {
-                UpdateAvailableCard(update: update, onDismiss: state.dismissUpdateBanner)
+                UpdateAvailableCard(update: update, stage: state.updateStage,
+                                   onInstall: state.installUpdateNow, onDismiss: state.dismissUpdateBanner)
             }
 
             if let days = state.daysUntilRamadan {
@@ -249,24 +250,55 @@ struct AdhanPlayingCard: View {
 
 struct UpdateAvailableCard: View {
     let update: UpdateInfo
+    let stage: UpdateStage
+    let onInstall: () -> Void
     let onDismiss: () -> Void
 
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: "arrow.down.circle.fill")
+            Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(.blue)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Update available").font(.caption).foregroundStyle(.secondary)
+                Text(caption).font(.caption).foregroundStyle(.secondary)
                 Text(update.version).font(.headline)
             }
             Spacer()
-            Button("Dismiss", action: onDismiss)
-                .buttonStyle(.borderless)
-            Button("View") { NSWorkspace.shared.open(update.url) }
+            trailingButtons
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color.blue.opacity(0.15)))
+    }
+
+    private var icon: String {
+        switch stage {
+        case .idle, .downloading: return "arrow.down.circle.fill"
+        case .readyToInstall: return "checkmark.circle.fill"
+        case .failed: return "exclamationmark.triangle.fill"
+        }
+    }
+
+    private var caption: String {
+        switch stage {
+        case .idle, .downloading: return "Downloading update…"
+        case .readyToInstall: return "Update ready"
+        case .failed: return "Update available"
+        }
+    }
+
+    @ViewBuilder private var trailingButtons: some View {
+        switch stage {
+        case .idle, .downloading:
+            ProgressView().controlSize(.small)
+            Button("Dismiss", action: onDismiss).buttonStyle(.borderless)
+        case .readyToInstall:
+            Button("Later", action: onDismiss).buttonStyle(.borderless)
+            Button("Restart Now", action: onInstall)
+                .keyboardShortcut(.defaultAction)
+        case .failed:
+            Button("Dismiss", action: onDismiss).buttonStyle(.borderless)
+            Button("View") { NSWorkspace.shared.open(update.url) }
+        }
     }
 }
 

@@ -42,7 +42,8 @@ targets:
     entitlements:
       path: Sources/Salawaty.entitlements
       properties:
-        com.apple.security.app-sandbox: true
+        # No app-sandbox: the updater needs to write into /Applications to replace
+        # the running app's own bundle, which a sandboxed app cannot do.
         com.apple.security.personal-information.location: true
         com.apple.security.network.client: true
         com.apple.security.files.user-selected.read-only: true

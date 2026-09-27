@@ -59,6 +59,12 @@ jobs:
           ln -s /Applications "$STAGE/Applications"
           hdiutil create -volname "Salawaty" -srcfolder "$STAGE" -ov -format UDZO "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg"
 
+      - name: Generate checksum
+        if: steps.tag_version.outputs.new_tag != ''
+        run: |
+          shasum -a 256 "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg" \
+            > "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg.sha256"
+
       - name: Publish GitHub Release
         if: steps.tag_version.outputs.new_tag != ''
         env:
@@ -66,5 +72,6 @@ jobs:
         run: |
           gh release create "${{ steps.tag_version.outputs.new_tag }}" \
             "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg" \
+            "Salawaty-${{ steps.tag_version.outputs.new_version }}.dmg.sha256" \
             --title "Salawaty ${{ steps.tag_version.outputs.new_tag }}" \
             --generate-notes

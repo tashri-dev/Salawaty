@@ -17,6 +17,10 @@ final class AppState: ObservableObject {
     @Published private(set) var daysUntilRamadan: Int?
     /// Non-nil once a newer GitHub release is found.
     @Published private(set) var updateAvailable: UpdateInfo?
+    /// Tracks the silent background download/verify/stage that starts as soon as
+    /// `updateAvailable` is set.
+    @Published private(set) var updateStage: UpdateStage = .idle
+    private var stagedUpdateURL: URL?
 
     let location = LocationService()
     let player = AdhanPlayer()
@@ -86,15 +90,56 @@ final class AppState: ObservableObject {
     }
 
     /// Checks GitHub Releases once; called on launch and from Settings' manual "Check Now".
+    /// When a newer version is found, silently starts downloading and verifying it in
+    /// the background so it's ready to install as soon as the user confirms.
     func checkForUpdates() {
         Task { [weak self] in
             let info = await UpdateChecker.checkForUpdate()
-            await MainActor.run { self?.updateAvailable = info }
+            await MainActor.run {
+                self?.updateAvailable = info
+                if let info {
+                    self?.downloadUpdateSilently(info)
+                }
+            }
+        }
+    }
+
+    private func downloadUpdateSilently(_ info: UpdateInfo) {
+        updateStage = .downloading
+        Task { [weak self] in
+            do {
+                let staged = try await UpdateInstaller.downloadAndStage(info)
+                await MainActor.run {
+                    self?.stagedUpdateURL = staged
+                    self?.updateStage = .readyToInstall
+                }
+            } catch {
+                await MainActor.run {
+                    self?.updateStage = .failed(error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    /// Replaces the running app with the staged update and relaunches it.
+    func installUpdateNow() {
+        guard let staged = stagedUpdateURL else { return }
+        Task { [weak self] in
+            do {
+                try await UpdateInstaller.installAndRelaunch(stagedAppURL: staged)
+                await MainActor.run { NSApp.terminate(nil) }
+            } catch {
+                await MainActor.run {
+                    self?.updateStage = .failed(error.localizedDescription)
+                }
+            }
         }
     }
 
     func dismissUpdateBanner() {
         updateAvailable = nil
+        updateStage = .idle
+        stagedUpdateURL = nil
     }
 
     // MARK: Derived values
